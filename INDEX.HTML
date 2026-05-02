@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>My Smart App</title>
+
+<!-- Tailwind CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body {
+  background: #0f172a;
+}
+.glass {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(10px);
+}
+</style>
+</head>
+
+<body class="text-white">
+
+<div class="max-w-4xl mx-auto p-6">
+
+  <h1 class="text-3xl font-bold text-center mb-6">💎 My Smart Dashboard</h1>
+
+  <!-- Tabs -->
+  <div class="flex gap-2 justify-center mb-6">
+    <button onclick="showTab('notes')" class="px-4 py-2 bg-blue-600 rounded">Notes</button>
+    <button onclick="showTab('expenses')" class="px-4 py-2 bg-green-600 rounded">Expenses</button>
+  </div>
+
+  <!-- NOTES -->
+  <div id="notes" class="glass p-4 rounded-lg">
+    <h2 class="text-xl mb-2">📝 Notes</h2>
+
+    <input id="noteInput" class="w-full p-2 text-black rounded" placeholder="Write note...">
+
+    <button onclick="addNote()" class="mt-2 bg-blue-500 px-4 py-2 rounded">Add Note</button>
+
+    <ul id="noteList" class="mt-4 space-y-2"></ul>
+  </div>
+
+  <!-- EXPENSES -->
+  <div id="expenses" class="glass p-4 rounded-lg hidden">
+    <h2 class="text-xl mb-2">💰 Expenses</h2>
+
+    <input id="desc" class="w-full p-2 text-black rounded mb-2" placeholder="Description">
+    <input id="amount" type="number" class="w-full p-2 text-black rounded" placeholder="Amount">
+
+    <button onclick="addExpense()" class="mt-2 bg-green-500 px-4 py-2 rounded">Add Expense</button>
+
+    <h3 class="mt-4">Total: <span id="total">0</span> PKR</h3>
+
+    <ul id="expenseList" class="mt-2 space-y-2"></ul>
+  </div>
+
+</div>
+
+<script>
+// Tabs
+function showTab(tab){
+  document.getElementById('notes').classList.add('hidden');
+  document.getElementById('expenses').classList.add('hidden');
+  document.getElementById(tab).classList.remove('hidden');
+}
+
+// NOTES
+let notes = JSON.parse(localStorage.getItem("notes") || "[]");
+
+function renderNotes(){
+  let list = document.getElementById("noteList");
+  list.innerHTML = "";
+  notes.forEach((n,i)=>{
+    list.innerHTML += `<li class='bg-gray-700 p-2 rounded'>${n} 
+    <button onclick="delNote(${i})">❌</button></li>`;
+  });
+  localStorage.setItem("notes", JSON.stringify(notes));
+}
+
+function addNote(){
+  let val = document.getElementById("noteInput").value;
+  if(val){
+    notes.push(val);
+    document.getElementById("noteInput").value = "";
+    renderNotes();
+  }
+}
+
+function delNote(i){
+  notes.splice(i,1);
+  renderNotes();
+}
+
+// EXPENSES
+let expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+
+function renderExpenses(){
+  let list = document.getElementById("expenseList");
+  list.innerHTML = "";
+  let total = 0;
+
+  expenses.forEach((e,i)=>{
+    total += e.amount;
+    list.innerHTML += `<li class='bg-gray-700 p-2 rounded'>
+    ${e.desc} - ${e.amount} PKR
+    <button onclick="delExpense(${i})">❌</button>
+    </li>`;
+  });
+
+  document.getElementById("total").innerText = total;
+  localStorage.setItem("expenses", JSON.stringify(expenses));
+}
+
+function addExpense(){
+  let d = document.getElementById("desc").value;
+  let a = document.getElementById("amount").value;
+
+  if(d && a){
+    expenses.push({desc:d, amount:parseInt(a)});
+    document.getElementById("desc").value = "";
+    document.getElementById("amount").value = "";
+    renderExpenses();
+  }
+}
+
+function delExpense(i){
+  expenses.splice(i,1);
+  renderExpenses();
+}
+
+// init
+renderNotes();
+renderExpenses();
+</script>
+
+</body>
+</html>
